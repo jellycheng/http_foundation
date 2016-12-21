@@ -1,5 +1,5 @@
 <?php
 
 
-require dirname(__DIR__) . '/src/venoder/autoload.php';
+require dirname(__DIR__) . '/src/vendor/autoload.php';
 
