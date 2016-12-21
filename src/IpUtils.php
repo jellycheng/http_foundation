@@ -13,7 +13,7 @@ namespace Symfony\Component\HttpFoundation;
 
 /**
  * Http utility functions.
- *
+ * ip工具类
  * @author Fabien Potencier <fabien@symfony.com>
  */
 class IpUtils

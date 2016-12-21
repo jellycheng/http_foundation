@@ -30,11 +30,12 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
  */
 class Request
 {
+    //请求头常量
     const HEADER_CLIENT_IP = 'client_ip';
     const HEADER_CLIENT_HOST = 'client_host';
     const HEADER_CLIENT_PROTO = 'client_proto';
     const HEADER_CLIENT_PORT = 'client_port';
-
+    //请求方式常量
     const METHOD_HEAD = 'HEAD';
     const METHOD_GET = 'GET';
     const METHOD_POST = 'POST';
@@ -45,7 +46,7 @@ class Request
     const METHOD_OPTIONS = 'OPTIONS';
     const METHOD_TRACE = 'TRACE';
     const METHOD_CONNECT = 'CONNECT';
-
+    //信任代理
     protected static $trustedProxies = array();
 
     /**
@@ -211,7 +212,7 @@ class Request
      * @var array
      */
     protected static $formats;
-
+    //请求工厂，用于扩展
     protected static $requestFactory;
 
     /**
@@ -255,7 +256,7 @@ class Request
         $this->cookies = new ParameterBag($cookies);
         $this->files = new FileBag($files);
         $this->server = new ServerBag($server);
-        $this->headers = new HeaderBag($this->server->getHeaders());
+        $this->headers = new HeaderBag($this->server->getHeaders());//请求头，一定是在$_SERVER中取的
 
         $this->content = $content;
         $this->languages = null;
@@ -272,7 +273,7 @@ class Request
 
     /**
      * Creates a new request with values from PHP's super globals.
-     *
+     * 返回本类对象
      * @return Request A new request
      *
      * @api
@@ -296,7 +297,7 @@ class Request
 
         if (0 === strpos($request->headers->get('CONTENT_TYPE'), 'application/x-www-form-urlencoded')
             && in_array(strtoupper($request->server->get('REQUEST_METHOD', 'GET')), array('PUT', 'DELETE', 'PATCH'))
-        ) {
+        ) {//'PUT', 'DELETE', 'PATCH'方式请求
             parse_str($request->getContent(), $data);
             $request->request = new ParameterBag($data);
         }
@@ -416,7 +417,7 @@ class Request
 
     /**
      * Sets a callable able to create a Request instance.
-     *
+     * 注入一个request请求工厂，可以被call_user_func()调用且调用之后要返回request对象
      * This is mainly useful when you need to override the Request class
      * to keep BC with an existing system. It should not be used for any
      * other purpose.
@@ -563,7 +564,7 @@ class Request
      * Sets a list of trusted proxies.
      *
      * You should only list the reverse proxies that you manage directly.
-     *
+     * 设置代理
      * @param array $proxies A list of trusted proxies
      *
      * @api
@@ -575,7 +576,7 @@ class Request
 
     /**
      * Gets the list of trusted proxies.
-     *
+     * 获取代理
      * @return array An array of trusted proxies.
      */
     public static function getTrustedProxies()
@@ -1491,7 +1492,7 @@ class Request
     /**
      * Returns the request body content.
      *
-     * @param bool $asResource If true, a resource will be returned
+     * @param bool $asResource If true, a resource will be returned 是否作为资源
      *
      * @return string|resource The request body content or a resource to read the body stream.
      *
@@ -1499,7 +1500,7 @@ class Request
      */
     public function getContent($asResource = false)
     {
-        $currentContentIsResource = is_resource($this->content);
+        $currentContentIsResource = is_resource($this->content);//资源
         if (PHP_VERSION_ID < 50600 && false === $this->content) {
             throw new \LogicException('getContent() can only be called once when using the resource return type and PHP below 5.6.');
         }
@@ -1525,13 +1526,13 @@ class Request
             return fopen('php://input', 'rb');
         }
 
-        if ($currentContentIsResource) {
+        if ($currentContentIsResource) {//传入是资源
             rewind($this->content);
 
             return stream_get_contents($this->content);
         }
 
-        if (null === $this->content) {
+        if (null === $this->content) {//没有传入内容，自己去获取
             $this->content = file_get_contents('php://input');
         }
 
@@ -1943,7 +1944,7 @@ class Request
 
             return $request;
         }
-
+        //实例化本类
         return new static($query, $request, $attributes, $cookies, $files, $server, $content);
     }
 

@@ -9,6 +9,6 @@ $request = Request::createFromGlobals();
 echo $request->getPathInfo();
 
 echo PHP_EOL;
-echo $request->query->get('abc'); //获取get参数
+echo $request->query->get('abc'); //获取get abc参数
 
 //echo $content = $request->getContent();

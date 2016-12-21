@@ -13,7 +13,7 @@ namespace Symfony\Component\HttpFoundation;
 
 /**
  * ParameterBag is a container for key/value pairs.
- *
+ * 数组迭代器，参数迭代器
  * @author Fabien Potencier <fabien@symfony.com>
  *
  * @api
