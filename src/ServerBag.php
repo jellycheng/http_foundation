@@ -22,24 +22,23 @@ class ServerBag extends ParameterBag
 {
     /**
      * Gets the HTTP headers.
-     *
+     * 获取所有http请求头
      * @return array
      */
     public function getHeaders()
     {
         $headers = array();
+        //设置不是以HTTP_开头的,也算请求头,白名单
         $contentHeaders = array('CONTENT_LENGTH' => true, 'CONTENT_MD5' => true, 'CONTENT_TYPE' => true);
         foreach ($this->parameters as $key => $value) {
-            if (0 === strpos($key, 'HTTP_')) {
-                $headers[substr($key, 5)] = $value;
-            }
-            // CONTENT_* are not prefixed with HTTP_
-            elseif (isset($contentHeaders[$key])) {
+            if (0 === strpos($key, 'HTTP_')) {//以HTTP_开头的均为请求头
+                $headers[substr($key, 5)] = $value;//请求头key名去掉HTTP_字符 作为新数组key
+            } elseif (isset($contentHeaders[$key])) {// CONTENT_* are not prefixed with HTTP_
                 $headers[$key] = $value;
             }
         }
-
-        if (isset($this->parameters['PHP_AUTH_USER'])) {
+        //认证相关处理
+        if (isset($this->parameters['PHP_AUTH_USER'])) {//php认证
             $headers['PHP_AUTH_USER'] = $this->parameters['PHP_AUTH_USER'];
             $headers['PHP_AUTH_PW'] = isset($this->parameters['PHP_AUTH_PW']) ? $this->parameters['PHP_AUTH_PW'] : '';
         } else {

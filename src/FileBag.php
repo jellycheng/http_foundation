@@ -15,14 +15,14 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * FileBag is a container for uploaded files.
- *
+ * 文件容器,数组迭代器，$_FILES参数迭代器
  * @author Fabien Potencier <fabien@symfony.com>
  * @author Bulat Shakirzyanov <mallluhuct@gmail.com>
  *
  * @api
  */
 class FileBag extends ParameterBag
-{
+{   //上传文件,php可获取的固定key名
     private static $fileKeys = array('error', 'name', 'size', 'tmp_name', 'type');
 
     /**
@@ -96,9 +96,11 @@ class FileBag extends ParameterBag
                 if (UPLOAD_ERR_NO_FILE == $file['error']) {
                     $file = null;
                 } else {
+                    //实例化上传对象
                     $file = new UploadedFile($file['tmp_name'], $file['name'], $file['type'], $file['size'], $file['error']);
                 }
             } else {
+                //递归实例化上传对象
                 $file = array_map(array($this, 'convertFileInformation'), $file);
             }
         }
@@ -142,12 +144,12 @@ class FileBag extends ParameterBag
 
         foreach ($data['name'] as $key => $name) {
             $files[$key] = $this->fixPhpFilesArray(array(
-                'error' => $data['error'][$key],
-                'name' => $name,
-                'type' => $data['type'][$key],
-                'tmp_name' => $data['tmp_name'][$key],
-                'size' => $data['size'][$key],
-            ));
+                                                    'error' => $data['error'][$key],
+                                                    'name' => $name,
+                                                    'type' => $data['type'][$key],
+                                                    'tmp_name' => $data['tmp_name'][$key],
+                                                    'size' => $data['size'][$key],
+                                                  ));
         }
 
         return $files;

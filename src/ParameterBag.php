@@ -90,8 +90,8 @@ class ParameterBag implements \IteratorAggregate, \Countable
     /**
      * Returns a parameter by name.
      *
-     * @param string $path    The key
-     * @param mixed  $default The default value if the parameter key does not exist
+     * @param string $path    The key参数名, userid, foo[bar], hi[123][username] 这种方式,不需要加引号
+     * @param mixed  $default The default value if the parameter key does not exist参数不存在返回的默认值
      * @param bool   $deep    If true, a path like foo[bar] will find deeper items
      *
      * @return mixed
@@ -102,43 +102,44 @@ class ParameterBag implements \IteratorAggregate, \Countable
      */
     public function get($path, $default = null, $deep = false)
     {
-        if (!$deep || false === $pos = strpos($path, '[')) {
+        if (!$deep || false === $pos = strpos($path, '[')) {//参数名不含[]这个(user[123])
+            //获取参数值
             return array_key_exists($path, $this->parameters) ? $this->parameters[$path] : $default;
         }
 
-        $root = substr($path, 0, $pos);
+        $root = substr($path, 0, $pos);//从开始字符取到[之间的字符即参数名  如user[123] 返回user
         if (!array_key_exists($root, $this->parameters)) {
             return $default;
         }
 
-        $value = $this->parameters[$root];
-        $currentKey = null;
-        for ($i = $pos, $c = strlen($path); $i < $c; ++$i) {
+        $value = $this->parameters[$root];//参数值
+        $currentKey = null; //$path=user[123] 则$currentKey=123, 等于null表示标记可开始
+        for ($i = $pos, $c = strlen($path); $i < $c; ++$i) {//取[及以后的字符
             $char = $path[$i];
 
-            if ('[' === $char) {
+            if ('[' === $char) {//开始字符
                 if (null !== $currentKey) {
                     throw new \InvalidArgumentException(sprintf('Malformed path. Unexpected "[" at position %d.', $i));
                 }
 
-                $currentKey = '';
-            } elseif (']' === $char) {
-                if (null === $currentKey) {
+                $currentKey = '';//标记已开始,字符为空,从新开始
+            } elseif (']' === $char) {//结束字符
+                if (null === $currentKey) {//如果还是可开始状态则不合理
                     throw new \InvalidArgumentException(sprintf('Malformed path. Unexpected "]" at position %d.', $i));
                 }
 
-                if (!is_array($value) || !array_key_exists($currentKey, $value)) {
+                if (!is_array($value) || !array_key_exists($currentKey, $value)) {//返回默认值
                     return $default;
                 }
 
                 $value = $value[$currentKey];
-                $currentKey = null;
+                $currentKey = null;//标记可开始,进入下一个迭代
             } else {
-                if (null === $currentKey) {
+                if (null === $currentKey) {//如果还是可开始状态则不合理
                     throw new \InvalidArgumentException(sprintf('Malformed path. Unexpected "%s" at position %d.', $char, $i));
                 }
 
-                $currentKey .= $char;
+                $currentKey .= $char;//拼接这个阶段的key
             }
         }
 
@@ -151,7 +152,7 @@ class ParameterBag implements \IteratorAggregate, \Countable
 
     /**
      * Sets a parameter by name.
-     *
+     * 设置参数值
      * @param string $key   The key
      * @param mixed  $value The value
      *
@@ -164,7 +165,7 @@ class ParameterBag implements \IteratorAggregate, \Countable
 
     /**
      * Returns true if the parameter is defined.
-     *
+     * 判断参数名是否存在
      * @param string $key The key
      *
      * @return bool true if the parameter exists, false otherwise
@@ -178,7 +179,7 @@ class ParameterBag implements \IteratorAggregate, \Countable
 
     /**
      * Removes a parameter.
-     *
+     * 删除参数
      * @param string $key The key
      *
      * @api
@@ -190,9 +191,9 @@ class ParameterBag implements \IteratorAggregate, \Countable
 
     /**
      * Returns the alphabetic characters of the parameter value.
-     *
-     * @param string $key     The parameter key
-     * @param mixed  $default The default value if the parameter key does not exist
+     * 获取参数值,并做alpha过滤
+     * @param string $key     The parameter key 参数名
+     * @param mixed  $default The default value if the parameter key does not exist默认值
      * @param bool   $deep    If true, a path like foo[bar] will find deeper items
      *
      * @return string The filtered value
@@ -206,7 +207,7 @@ class ParameterBag implements \IteratorAggregate, \Countable
 
     /**
      * Returns the alphabetic characters and digits of the parameter value.
-     *
+     * 获取参数值,并做alnum过滤
      * @param string $key     The parameter key
      * @param mixed  $default The default value if the parameter key does not exist
      * @param bool   $deep    If true, a path like foo[bar] will find deeper items
@@ -239,7 +240,7 @@ class ParameterBag implements \IteratorAggregate, \Countable
 
     /**
      * Returns the parameter value converted to integer.
-     *
+     * 获取参数值并转为int型
      * @param string $key     The parameter key
      * @param mixed  $default The default value if the parameter key does not exist
      * @param bool   $deep    If true, a path like foo[bar] will find deeper items
@@ -255,7 +256,7 @@ class ParameterBag implements \IteratorAggregate, \Countable
 
     /**
      * Returns the parameter value converted to boolean.
-     *
+     * 参数值是否为bool值
      * @param string $key     The parameter key
      * @param mixed  $default The default value if the parameter key does not exist
      * @param bool   $deep    If true, a path like foo[bar] will find deeper items
@@ -269,7 +270,7 @@ class ParameterBag implements \IteratorAggregate, \Countable
 
     /**
      * Filter key.
-     *
+     * 获取参数值,调用filter_var函数过滤
      * @param string $key     Key.
      * @param mixed  $default Default = null.
      * @param bool   $deep    Default = false.
@@ -299,7 +300,7 @@ class ParameterBag implements \IteratorAggregate, \Countable
 
     /**
      * Returns an iterator for parameters.
-     *
+     * 返回迭代器,方便循环所有参数
      * @return \ArrayIterator An \ArrayIterator instance
      */
     public function getIterator()
@@ -309,7 +310,7 @@ class ParameterBag implements \IteratorAggregate, \Countable
 
     /**
      * Returns the number of parameters.
-     *
+     * 参数个数
      * @return int The number of parameters
      */
     public function count()

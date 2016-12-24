@@ -292,14 +292,14 @@ class Request
                 $server['CONTENT_TYPE'] = $_SERVER['HTTP_CONTENT_TYPE'];
             }
         }
-
+        //返回本类对象
         $request = self::createRequestFromFactory($_GET, $_POST, array(), $_COOKIE, $_FILES, $server);
 
         if (0 === strpos($request->headers->get('CONTENT_TYPE'), 'application/x-www-form-urlencoded')
             && in_array(strtoupper($request->server->get('REQUEST_METHOD', 'GET')), array('PUT', 'DELETE', 'PATCH'))
-        ) {//'PUT', 'DELETE', 'PATCH'方式请求
+        ) {//表单方式请求且'PUT', 'DELETE', 'PATCH'方式请求
             parse_str($request->getContent(), $data);
-            $request->request = new ParameterBag($data);
+            $request->request = new ParameterBag($data);//设置重置请求对象
         }
 
         return $request;
