@@ -25,3 +25,10 @@ echo $request->query->get('foo[bar]', "不存在foo[bar]参数返回的默认值
 //echo $content = $request->getContent(); //基本等价 file_get_contents('php://input')  一般用于post请求获取内容
 
 
+//$request->request->get('post参数名', '默认值'); //获取post参数值
+
+// $this->server->set('REQUEST_METHOD', 'POST'); //设置请求方法
+
+//获取请求方法
+echo $request->server->get('REQUEST_METHOD'); //等价 $request->getRealMethod();  or $request->getMethod();
+
